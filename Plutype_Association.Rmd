@@ -1,0 +1,388 @@
+---
+title: "Plutype_Association"
+output: html_document
+date: "2023-12-19"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+#install.packages("qqman")
+library(qqman)
+library(stringr)
+library(data.table)
+library(dplyr)
+library(plyr)
+library(matrixStats)
+```
+
+```{r}
+assoc <- read_tsv("binary.plutype.assoc.txt")
+
+head(assoc)
+
+significant <- assoc %>% filter(p_wald < 0.000001)
+
+assoc %>% arrange(p_wald)
+
+
+significant %>% filter(rs == "NC_044274.1:41995633")
+
+
+```
+
+```{r}
+assoc <- fread("binary.plutype.assoc.txt", header=T)
+assoc$p_wald = -log10(assoc$p_wald)
+```
+
+
+```{r}
+attach(assoc)
+assoc.over6 <- assoc[which(p_wald>6),]
+detach(assoc)
+```
+
+```{r}
+assoc$chr <- str_replace(assoc$chr, "NC_044244.1","1")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044245.1","2")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044246.1","3")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044247.1","4")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044248.1","5")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044249.1","6")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044250.1","7")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044251.1","8")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044252.1","9")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044253.1","10")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044254.1","11")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044255.1","12")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044256.1","13")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044257.1","14")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044258.1","15")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044259.1","16")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044260.1","17")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044261.1","18")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044262.1","19")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044263.1","20")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044264.1","21")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044265.1","22")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044266.1","23")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044267.1","24")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044268.1","25")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044269.1","26")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044270.1","27")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044271.1","28")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044272.1","29")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044273.1","30")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044274.1","31")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044276.1","32")
+
+assoc$chr <- str_replace(assoc$chr, "NC_044275.1","33")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045419.1","34")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045420.1","35")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045421.1","36")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045422.1","37")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045423.1","38")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045424.1","39")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045425.1","40")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045426.1","41")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045427.1","42")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045428.1","43")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045429.1","44")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045430.1","45")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045431.1","46")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045433.1","47")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045435.1","48")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045436.1","49")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045438.1","50")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045439.1","51")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045440.1","52")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045441.1","53")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045442.1","54")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045443.1","55")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045445.1","56")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045446.1","57")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045447.1","58")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045448.1","59")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045449.1","60")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045450.1","61")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045451.1","62")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045452.1","63")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045453.1","64")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045454.1","65")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045455.1","66")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045456.1","67")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045457.1","68")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045458.1","69")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045459.1","70")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045460.1","71")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045461.1","72")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045462.1","73")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045463.1","74")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045464.1","75")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045465.1","76")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045466.1","77")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045469.1","78")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045470.1","79")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045471.1","80")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045472.1","81")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045473.1","82")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045474.1","83")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045475.1","84")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045477.1","85")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045478.1","86")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045479.1","87")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045480.1","88")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045481.1","89")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045482.1","90")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045483.1","91")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045484.1","92")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045485.1","93")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045487.1","94")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045488.1","95")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045489.1","96")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045490.1","97")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045491.1","98")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045492.1","99")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045493.1","100")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045495.1","101")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045496.1","102")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045497.1","103")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045499.1","104")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045500.1","105")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045501.1","106")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045502.1","107")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045503.1","108")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045504.1","109")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045506.1","110")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045507.1","111")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045508.1","112")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045509.1","113")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045510.1","114")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045511.1","115")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045512.1","116")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045513.1","117")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045514.1","118")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045515.1","119")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045517.1","120")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045518.1","121")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045519.1","122")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045520.1","123")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045521.1","124")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045522.1","125")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045523.1","126")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045525.1","127")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045526.1","128")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045527.1","129")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045528.1","130")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045529.1","131")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045530.1","132")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045531.1","133")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045532.1","134")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045533.1","135")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045534.1","136")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045535.1","137")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045536.1","138")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045537.1","139")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045538.1","140")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045539.1","141")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045540.1","142")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045541.1","143")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045542.1","144")
+
+assoc$chr <- str_replace(assoc$chr, "NW_022045543.1","145")
+
+save.image("analysis.Rdata")
+```
+
+```{r}
+nrow(assoc)
+assoc$numbers <- seq(from = 1, to = 23970628, by = 1)
+```
+
+```{r}
+colnames(assoc)[1] <- "CHR"
+colnames(assoc)[3] <- "BP"
+colnames(assoc)[12] <- "P"
+colnames(assoc)[13] <- "SNP"
+
+assoc$CHR <- as.numeric(assoc$CHR)
+#Warning: NAs introduced by coercion
+
+#How many NA's are there?
+assoc %>% filter(is.na(CHR))
+#only seems to be 6. Probably not a concern?
+
+is.numeric(assoc$CHR)
+```
+
+```{r}
+assoc.6 <- assoc %>% filter(P > 6) %>% arrange(SNP)
+write_csv(assoc.6, "assoc6.csv")
+
+assoc.5 <- assoc %>% filter(P > 5) %>% arrange(SNP)
+write_csv(assoc.5, "assoc5.csv")
+
+assoc.6 %>% arrange(desc(P))
+
+```
+
+```{r}
+assoc.2 <- assoc %>% filter(P>2) %>% arrange(SNP)
+
+manhattan(assoc.2, chrom="CHR", bp="BP", p="P", snp="SNP", logp=FALSE, ylim = c(0, 13), cex = 0.7, col = c("black", "grey80"), relative.positions = TRUE, suggestiveline = F)
+
+assoc.1 <- assoc %>% filter(P>1) %>% arrange(SNP)
+
+manhattan(assoc.1, chrom="CHR", bp="BP", p="P", snp="SNP", logp=FALSE, ylim = c(0, 13), cex = 0.7, col = c("black", "grey80"), relative.positions = TRUE, suggestiveline = F)
+```
+
+```{r}
+thindata <- read.table("final2.filtered.thin10k.MO.excl.012", header = F) 
+```
+
