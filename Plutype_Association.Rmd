@@ -8,6 +8,8 @@ date: "2023-12-19"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Library and Data Load
+
 ```{r}
 library(tidyverse)
 #install.packages("qqman")
@@ -28,17 +30,14 @@ significant <- assoc %>% filter(p_wald < 0.000001)
 
 assoc %>% arrange(p_wald)
 
-
-significant %>% filter(rs == "NC_044274.1:41995633")
-
-
 ```
+
+# Female Only Comparison
 
 ```{r}
 assoc <- fread("binary.plutype.assoc.txt", header=T)
 assoc$p_wald = -log10(assoc$p_wald)
 ```
-
 
 ```{r}
 attach(assoc)
@@ -370,19 +369,1070 @@ write_csv(assoc.5, "assoc5.csv")
 
 assoc.6 %>% arrange(desc(P))
 
+assoc.8 <- assoc %>% filter(P > 8)
+assoc.9 <- assoc %>% filter(P > 9)
+
 ```
 
 ```{r}
 assoc.2 <- assoc %>% filter(P>2) %>% arrange(SNP)
 
-manhattan(assoc.2, chrom="CHR", bp="BP", p="P", snp="SNP", logp=FALSE, ylim = c(0, 13), cex = 0.7, col = c("black", "grey80"), relative.positions = TRUE, suggestiveline = F)
+pdf("PvalueMan.pdf")
+manhattan(assoc.2, chr="CHR", bp="BP", p="P", snp="SNP", logp=FALSE, ylim = c(0, 13), col = c("black", "grey80"), suggestiveline = F)
+
+dev.off()  # This closes the PDF device, saving the plot
 
 assoc.1 <- assoc %>% filter(P>1) %>% arrange(SNP)
 
-manhattan(assoc.1, chrom="CHR", bp="BP", p="P", snp="SNP", logp=FALSE, ylim = c(0, 13), cex = 0.7, col = c("black", "grey80"), relative.positions = TRUE, suggestiveline = F)
+manhattan(assoc.1, chr="CHR", bp="BP", p="P", snp="SNP", logp=FALSE, ylim = c(0, 13), col = c("black", "grey80"), suggestiveline = F, genomewideline = F)
+```
+
+##Zoom in on BNC2 gene
+
+Indels kept, and we looked at Fst
+
+```{r}
+bnc2fst <- read_tsv("mlf.vs.flf.plumage.weir.fst") %>%
+  mutate(WEIR_AND_COCKERHAM_FST = if_else(WEIR_AND_COCKERHAM_FST > 0, WEIR_AND_COCKERHAM_FST, 0))
+
+bnc2fst %>% arrange(desc(WEIR_AND_COCKERHAM_FST))
+bnc2fst %>% arrange(desc(POS))
+bnc2fst %>% head()
+
+
+bnc2plot <- ggplot(bnc2fst, aes(x = POS, y = WEIR_AND_COCKERHAM_FST)) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = 1, yend = 1, col = "red"), size = 7) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = 1, yend = 1, col = "red"), size = 7) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = 1, yend = 1, col = "red"), size = 7) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = 1, yend = 1, col = "red"), size = 7) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = 1, yend = 1, col = "red"), size = 7) +
+  geom_segment(aes(x = 41884094, xend = 42112750, y = 1, yend = 1, col = "red"), size = .5) +
+  geom_point(size = .5) +
+  xlab("Position") +
+  ylab("Fst") +
+  #geom_jitter(width = 500) +
+  theme_classic()
+
+
+bnc2plot
+
+ggsave("bnc2plot.png", bnc2plot, height = 1.75, width = 8)
+
+bnc2fst_75 <- bnc2fst %>% filter(WEIR_AND_COCKERHAM_FST > 0.75) %>% arrange(desc(WEIR_AND_COCKERHAM_FST))
+write_csv(bnc2fst_75, "highFSTonBNC2.csv")
+
+#Look up all Fst = 1 POS and figure out if they're indels
 ```
 
 ```{r}
+bnc2TD.1000 <- read_tsv("BNC2.tajimasd.allinds.1000.Tajima.D")
+bnc2TD.100 <- read_tsv("BNC2.tajimasd.allinds.100.Tajima.D")
+
+
+bnc2plot_TD <- ggplot(bnc2TD.100, aes(x = BIN_START, y = TajimaD)) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = 1, yend = 1, col = "red"), size = 7) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = 1, yend = 1, col = "red"), size = 7) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = 1, yend = 1, col = "red"), size = 7) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = 1, yend = 1, col = "red"), size = 7) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = 1, yend = 1, col = "red"), size = 7) +
+  geom_segment(aes(x = 41884094, xend = 42112750, y = 1, yend = 1, col = "red"), size = .5) +
+  geom_point(size = .5) +
+  #geom_jitter(width = 500) +
+  theme_classic()
+
+bnc2plot_TD 
+```
+
+```{r}
+X.10000 <- read_tsv("Zchrom.tajimasd.allinds.10000.Tajima.D")
+X.1000 <- read_tsv("Zchrom.tajimasd.allinds.1000.Tajima.D")
+X.100 <- read_tsv("Zchrom.tajimasd.allinds.100.Tajima.D")
+
+
+Xplot_TD <- ggplot(X.10000, aes(x = BIN_START, y = TajimaD)) +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = 1, yend = 1, col = "red"), size = 200) +
+  geom_point(size = .5) +
+  geom_smooth() +
+  theme_classic()
+
+mean(X.10000$TajimaD, na.rm = TRUE)
+mean(bnc2TD.1000$TajimaD, na.rm = TRUE)
+
+Xplot_TD 
+```
+
+```{r}
+full.tajd <- read_tsv("fullgenome.tajD.allinds.10kbin.Tajima.D")
+
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044244.1","1")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044245.1","2")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044246.1","3")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044247.1","4")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044248.1","5")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044249.1","6")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044250.1","7")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044251.1","8")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044252.1","9")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044253.1","10")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044254.1","11")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044255.1","12")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044256.1","13")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044257.1","14")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044258.1","15")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044259.1","16")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044260.1","17")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044261.1","18")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044262.1","19")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044263.1","20")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044264.1","21")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044265.1","22")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044266.1","23")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044267.1","24")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044268.1","25")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044269.1","26")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044270.1","27")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044271.1","28")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044272.1","29")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044273.1","30")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044274.1","31")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044276.1","32")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NC_044275.1","33")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045419.1","34")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045420.1","35")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045421.1","36")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045422.1","37")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045423.1","38")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045424.1","39")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045425.1","40")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045426.1","41")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045427.1","42")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045428.1","43")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045429.1","44")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045430.1","45")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045431.1","46")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045433.1","47")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045435.1","48")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045436.1","49")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045438.1","50")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045439.1","51")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045440.1","52")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045441.1","53")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045442.1","54")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045443.1","55")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045445.1","56")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045446.1","57")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045447.1","58")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045448.1","59")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045449.1","60")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045450.1","61")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045451.1","62")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045452.1","63")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045453.1","64")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045454.1","65")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045455.1","66")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045456.1","67")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045457.1","68")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045458.1","69")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045459.1","70")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045460.1","71")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045461.1","72")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045462.1","73")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045463.1","74")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045464.1","75")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045465.1","76")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045466.1","77")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045469.1","78")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045470.1","79")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045471.1","80")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045472.1","81")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045473.1","82")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045474.1","83")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045475.1","84")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045477.1","85")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045478.1","86")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045479.1","87")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045480.1","88")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045481.1","89")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045482.1","90")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045483.1","91")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045484.1","92")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045485.1","93")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045487.1","94")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045488.1","95")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045489.1","96")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045490.1","97")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045491.1","98")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045492.1","99")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045493.1","100")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045495.1","101")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045496.1","102")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045497.1","103")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045499.1","104")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045500.1","105")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045501.1","106")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045502.1","107")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045503.1","108")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045504.1","109")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045506.1","110")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045507.1","111")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045508.1","112")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045509.1","113")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045510.1","114")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045511.1","115")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045512.1","116")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045513.1","117")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045514.1","118")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045515.1","119")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045517.1","120")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045518.1","121")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045519.1","122")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045520.1","123")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045521.1","124")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045522.1","125")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045523.1","126")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045525.1","127")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045526.1","128")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045527.1","129")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045528.1","130")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045529.1","131")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045530.1","132")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045531.1","133")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045532.1","134")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045533.1","135")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045534.1","136")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045535.1","137")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045536.1","138")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045537.1","139")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045538.1","140")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045539.1","141")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045540.1","142")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045541.1","143")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045542.1","144")
+full.tajd$CHROM <- str_replace(full.tajd$CHROM, "NW_022045543.1","145")
+
+full.tajd <- full.tajd %>% mutate(CHROM = as.numeric(CHROM)) %>%
+  filter(!is.na(TajimaD)) %>%
+  filter(!is.na(CHROM))
+
+full.tajd %>% filter(is.na(CHROM))
+
+manhattan(full.tajd, chr="CHROM", bp="BIN_START", p="TajimaD", snp="N_SNPS", logp=FALSE, ylim = c(0, 5), col = c("black", "grey80"), suggestiveline = F, genomewideline = F)
+
+mean(full.tajd$TajimaD)
+
+summary(full.tajd$CHROM)
+```
+
+
+#PCA for Population Structure
+
+```{r}
 thindata <- read.table("final2.filtered.thin10k.MO.excl.012", header = F) 
+meta <- read_csv("samples.csv") %>% arrange(sample_name)
+```
+
+```{r}
+thindata$V1 <- NULL
+thindata[thindata=="-1"] <- NA
+thindata <- as.data.frame(t(thindata))
+
+```
+
+```{r}
+do.pca<-function(gmat, write.gcov=FALSE){
+  gmn<-apply(gmat,1,mean, na.rm=T) # creates a vector of means for each row (for each snp, across all samples)
+  gmnmat<-matrix(gmn,nrow=nrow(gmat),ncol=ncol(gmat)) # creates a matrix, which has replicate columns of the above snp means
+  gprime<-gmat-gmnmat ## remove mean.
+
+  gcovarmat<-matrix(NA,nrow=ncol(gmat),ncol=ncol(gmat))
+  for(i in 1:ncol(gmat)){
+    print( c('on this individual:', i) )
+    for(j in i:ncol(gmat)){
+      if (i==j){
+        gcovarmat[i,j]<-cov( gprime[,i],gprime[,j] , use="pairwise.complete.obs")
+      }
+      else{
+        gcovarmat[i,j]<-cov( gprime[,i],gprime[,j] , use="pairwise.complete.obs")
+        gcovarmat[j,i]<-gcovarmat[i,j]
+      }
+    }
+  }
+  gcovarmat
+}
+```
+
+```{r}
+gcovarmat = do.pca(thindata, write.gcov=F ) 
+colRanges(gcovarmat) # checking for NAs
+pca.results = prcomp(gcovarmat)
+pcaOut = as.data.frame(cbind(pca.results$x[,1], pca.results$x[,2]))
+pcaData = cbind(meta$sample_name, meta$type, pcaOut)
+names(pcaData) = c("sample", "type", "PC1", "PC2")
+
+write.table(pcaData, "pcaoutput.txt", sep="\t", quote=F, row.names = F, col.names = T)
+
+summary(pca.results)
+
+PopPCA <- ggplot(data=pcaData, aes(x=PC1, y=PC2, colour=type)) +
+      geom_point(size=5, alpha=0.8) +
+      scale_color_manual(values=c("darkolivegreen3", "deepskyblue3", "darkgrey")) +
+      #stat_ellipse(type = "norm", linetype = 2, size=0.5) +
+      xlab("PC1, 5.7% of variance") +
+      ylab("PC2, 5.3% of variance") +
+      theme_classic()
+
+ggsave("PopPCA.png", PopPCA, height = 3, width = 4)
+
+#, show.legend = FALSE
+```
+
+# Association test including males this time
+
+```{r}
+assocmales <- read_tsv("binary.plutype.withmales.assoc.txt")
+
+assocmales$p_wald = -log10(assocmales$p_wald)
+
+attach(assocmales)
+assocmales.over6 <- assocmales[which(p_wald>6),]
+detach(assocmales)
+```
+
+```{r}
+assocmales$chr <- str_replace(assocmales$chr, "NC_044244.1","1")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044245.1","2")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044246.1","3")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044247.1","4")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044248.1","5")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044249.1","6")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044250.1","7")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044251.1","8")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044252.1","9")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044253.1","10")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044254.1","11")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044255.1","12")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044256.1","13")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044257.1","14")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044258.1","15")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044259.1","16")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044260.1","17")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044261.1","18")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044262.1","19")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044263.1","20")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044264.1","21")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044265.1","22")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044266.1","23")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044267.1","24")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044268.1","25")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044269.1","26")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044270.1","27")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044271.1","28")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044272.1","29")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044273.1","30")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044274.1","31")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044276.1","32")
+
+assocmales$chr <- str_replace(assocmales$chr, "NC_044275.1","33")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045419.1","34")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045420.1","35")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045421.1","36")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045422.1","37")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045423.1","38")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045424.1","39")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045425.1","40")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045426.1","41")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045427.1","42")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045428.1","43")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045429.1","44")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045430.1","45")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045431.1","46")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045433.1","47")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045435.1","48")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045436.1","49")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045438.1","50")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045439.1","51")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045440.1","52")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045441.1","53")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045442.1","54")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045443.1","55")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045445.1","56")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045446.1","57")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045447.1","58")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045448.1","59")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045449.1","60")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045450.1","61")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045451.1","62")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045452.1","63")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045453.1","64")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045454.1","65")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045455.1","66")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045456.1","67")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045457.1","68")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045458.1","69")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045459.1","70")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045460.1","71")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045461.1","72")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045462.1","73")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045463.1","74")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045464.1","75")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045465.1","76")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045466.1","77")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045469.1","78")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045470.1","79")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045471.1","80")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045472.1","81")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045473.1","82")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045474.1","83")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045475.1","84")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045477.1","85")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045478.1","86")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045479.1","87")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045480.1","88")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045481.1","89")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045482.1","90")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045483.1","91")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045484.1","92")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045485.1","93")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045487.1","94")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045488.1","95")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045489.1","96")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045490.1","97")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045491.1","98")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045492.1","99")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045493.1","100")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045495.1","101")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045496.1","102")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045497.1","103")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045499.1","104")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045500.1","105")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045501.1","106")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045502.1","107")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045503.1","108")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045504.1","109")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045506.1","110")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045507.1","111")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045508.1","112")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045509.1","113")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045510.1","114")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045511.1","115")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045512.1","116")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045513.1","117")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045514.1","118")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045515.1","119")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045517.1","120")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045518.1","121")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045519.1","122")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045520.1","123")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045521.1","124")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045522.1","125")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045523.1","126")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045525.1","127")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045526.1","128")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045527.1","129")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045528.1","130")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045529.1","131")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045530.1","132")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045531.1","133")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045532.1","134")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045533.1","135")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045534.1","136")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045535.1","137")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045536.1","138")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045537.1","139")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045538.1","140")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045539.1","141")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045540.1","142")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045541.1","143")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045542.1","144")
+
+assocmales$chr <- str_replace(assocmales$chr, "NW_022045543.1","145")
+```
+
+```{r}
+nrow(assocmales)
+assocmales$numbers <- seq(from = 1, to = 24221217, by = 1)
+```
+
+```{r}
+colnames(assocmales)[1] <- "CHR"
+colnames(assocmales)[3] <- "BP"
+colnames(assocmales)[12] <- "P"
+colnames(assocmales)[13] <- "SNP"
+
+assocmales$CHR <- as.numeric(assocmales$CHR)
+#Warning: NAs introduced by coercion
+
+#How many NA's are there?
+assocmales %>% filter(is.na(CHR))
+#only seems to be 6. Probably not a concern?
+
+is.numeric(assocmales$CHR)
+```
+
+
+```{r}
+assocmales.6 <- assocmales %>% filter(P > 6) %>% arrange(SNP)
+write_csv(assocmales.6, "assocmales6.csv")
+```
+
+```{r}
+assocmales.2 <- assocmales %>% filter(P>2) %>% arrange(SNP)
+
+manhattan(assocmales.2, chr="CHR", bp="BP", p="P", snp="SNP", logp=FALSE, ylim = c(0, 13), cex = 0.7, col = c("black", "grey80"), suggestiveline = F, genomewideline = F)
+```
+
+# Look at Sliding Window Fst
+
+```{r}
+femFst <- read_tsv("mlf.vs.flf.sliding.windowed.weir.fst")
+
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044244.1","1")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044245.1","2")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044246.1","3")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044247.1","4")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044248.1","5")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044249.1","6")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044250.1","7")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044251.1","8")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044252.1","9")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044253.1","10")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044254.1","11")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044255.1","12")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044256.1","13")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044257.1","14")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044258.1","15")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044259.1","16")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044260.1","17")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044261.1","18")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044262.1","19")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044263.1","20")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044264.1","21")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044265.1","22")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044266.1","23")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044267.1","24")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044268.1","25")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044269.1","26")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044270.1","27")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044271.1","28")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044272.1","29")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044273.1","30")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044274.1","31")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044276.1","32")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044275.1","33")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045419.1","34")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045420.1","35")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045421.1","36")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045422.1","37")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045423.1","38")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045424.1","39")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045425.1","40")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045426.1","41")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045427.1","42")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045428.1","43")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045429.1","44")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045430.1","45")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045431.1","46")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045433.1","47")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045435.1","48")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045436.1","49")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045438.1","50")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045439.1","51")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045440.1","52")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045441.1","53")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045442.1","54")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045443.1","55")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045445.1","56")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045446.1","57")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045447.1","58")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045448.1","59")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045449.1","60")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045450.1","61")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045451.1","62")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045452.1","63")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045453.1","64")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045454.1","65")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045455.1","66")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045456.1","67")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045457.1","68")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045458.1","69")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045459.1","70")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045460.1","71")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045461.1","72")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045462.1","73")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045463.1","74")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045464.1","75")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045465.1","76")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045466.1","77")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045469.1","78")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045470.1","79")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045471.1","80")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045472.1","81")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045473.1","82")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045474.1","83")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045475.1","84")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045477.1","85")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045478.1","86")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045479.1","87")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045480.1","88")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045481.1","89")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045482.1","90")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045483.1","91")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045484.1","92")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045485.1","93")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045487.1","94")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045488.1","95")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045489.1","96")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045490.1","97")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045491.1","98")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045492.1","99")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045493.1","100")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045495.1","101")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045496.1","102")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045497.1","103")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045499.1","104")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045500.1","105")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045501.1","106")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045502.1","107")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045503.1","108")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045504.1","109")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045506.1","110")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045507.1","111")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045508.1","112")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045509.1","113")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045510.1","114")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045511.1","115")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045512.1","116")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045513.1","117")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045514.1","118")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045515.1","119")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045517.1","120")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045518.1","121")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045519.1","122")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045520.1","123")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045521.1","124")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045522.1","125")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045523.1","126")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045525.1","127")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045526.1","128")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045527.1","129")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045528.1","130")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045529.1","131")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045530.1","132")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045531.1","133")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045532.1","134")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045533.1","135")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045534.1","136")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045535.1","137")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045536.1","138")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045537.1","139")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045538.1","140")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045539.1","141")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045540.1","142")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045541.1","143")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045542.1","144")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045543.1","145")
+
+femFst$SNP <- paste("SNP",1:nrow(femFst))
+femFst$CHROM <- as.numeric(femFst$CHROM)
+
+femFst %>% filter(WEIGHTED_FST > 0.99) %>% arrange(desc(WEIGHTED_FST))
+
+femFst %>% arrange(desc(MEAN_FST))
+
+
+femFst.1 <- femFst %>% filter(WEIGHTED_FST > 0.1)
+
+dev.off()
+
+```
+
+```{r}
+femFst <- read_tsv("mlf.vs.flf.sliding100.windowed.weir.fst")
+
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044244.1","1")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044245.1","2")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044246.1","3")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044247.1","4")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044248.1","5")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044249.1","6")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044250.1","7")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044251.1","8")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044252.1","9")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044253.1","10")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044254.1","11")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044255.1","12")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044256.1","13")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044257.1","14")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044258.1","15")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044259.1","16")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044260.1","17")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044261.1","18")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044262.1","19")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044263.1","20")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044264.1","21")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044265.1","22")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044266.1","23")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044267.1","24")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044268.1","25")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044269.1","26")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044270.1","27")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044271.1","28")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044272.1","29")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044273.1","30")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044274.1","31")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044276.1","32")
+femFst$CHROM <- str_replace(femFst$CHROM, "NC_044275.1","33")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045419.1","34")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045420.1","35")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045421.1","36")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045422.1","37")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045423.1","38")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045424.1","39")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045425.1","40")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045426.1","41")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045427.1","42")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045428.1","43")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045429.1","44")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045430.1","45")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045431.1","46")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045433.1","47")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045435.1","48")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045436.1","49")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045438.1","50")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045439.1","51")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045440.1","52")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045441.1","53")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045442.1","54")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045443.1","55")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045445.1","56")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045446.1","57")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045447.1","58")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045448.1","59")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045449.1","60")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045450.1","61")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045451.1","62")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045452.1","63")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045453.1","64")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045454.1","65")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045455.1","66")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045456.1","67")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045457.1","68")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045458.1","69")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045459.1","70")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045460.1","71")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045461.1","72")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045462.1","73")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045463.1","74")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045464.1","75")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045465.1","76")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045466.1","77")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045469.1","78")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045470.1","79")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045471.1","80")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045472.1","81")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045473.1","82")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045474.1","83")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045475.1","84")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045477.1","85")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045478.1","86")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045479.1","87")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045480.1","88")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045481.1","89")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045482.1","90")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045483.1","91")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045484.1","92")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045485.1","93")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045487.1","94")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045488.1","95")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045489.1","96")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045490.1","97")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045491.1","98")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045492.1","99")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045493.1","100")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045495.1","101")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045496.1","102")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045497.1","103")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045499.1","104")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045500.1","105")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045501.1","106")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045502.1","107")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045503.1","108")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045504.1","109")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045506.1","110")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045507.1","111")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045508.1","112")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045509.1","113")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045510.1","114")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045511.1","115")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045512.1","116")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045513.1","117")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045514.1","118")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045515.1","119")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045517.1","120")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045518.1","121")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045519.1","122")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045520.1","123")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045521.1","124")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045522.1","125")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045523.1","126")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045525.1","127")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045526.1","128")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045527.1","129")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045528.1","130")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045529.1","131")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045530.1","132")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045531.1","133")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045532.1","134")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045533.1","135")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045534.1","136")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045535.1","137")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045536.1","138")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045537.1","139")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045538.1","140")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045539.1","141")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045540.1","142")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045541.1","143")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045542.1","144")
+femFst$CHROM <- str_replace(femFst$CHROM, "NW_022045543.1","145")
+
+femFst$SNP <- paste("SNP",1:nrow(femFst))
+femFst$CHROM <- as.numeric(femFst$CHROM)
+
+
+
+fixedfemFst <- femFst %>% filter(WEIGHTED_FST == 1)
+
+fixedfemFst %>% arrange(BIN_START)
+
+femFst %>% arrange(desc(MEAN_FST))
+
+femFst$MEAN_FST %>% mean()
+
+femFst.1 <- femFst %>% filter(WEIGHTED_FST > 0.1)
+
+
+femFst0 <- femFst %>% mutate(FST = if_else(WEIGHTED_FST < 0, 0, WEIGHTED_FST))
+femFst0 <- femFst %>% mutate(FST = if_else(MEAN_FST < 0, 0, MEAN_FST))
+
+
+mean(femFst0$FST)
+
+
+```
+
+
+```{r}
+
+manhattan(femFst.1, chr="CHROM", bp="BIN_START", p="MEAN_FST", snp="SNP", logp=FALSE, ylim = c(0, 1.1), ylab = "Fst", xlab = "CHROM", col = c("black", "grey80"))
+
+#Try 100 window, 25 step
+
+
+ggsave(filename = "FSTplot.pdf", plot = FST_plot, device = "pdf")
+```
+
+```{r}
+file <- "/Users/jayfalk/Desktop/GCA_023637945.1_DD_ASM_B1_genomic.gbff"
+
+# read gbff file with readLines and split into a list of separate genbank records 
+readGBFF <- function (file, text = readLines(file), verbose = FALSE){
+  if (is(text, "character")) {
+    split_indices <- cumsum(grepl("^LOCUS", text))
+    text <- base::split(text, split_indices)
+  }
+  return(text)
+}
+
+GBFFraw <- readGBFF(file)
+
+# capture the features for each genbank record 
+GBFFfeat <- lapply(GBFFraw, function(x) {
+  i_start <- grep("^FEATURES", x)
+  i_end <- grep("^ORIGIN", x)
+  paste0(x[(i_start[1]+1):(i_end[1]-1)])
+})
+
+# check length of fixet space being consistent among list of lists
+range(sapply(GBFFfeat, function(x) {
+  max(sapply(gregexpr("^ +", GBFFfeat$AE000790.2), attr, "match.length")) }))
+
+GBFF_df <- mapply(GBFFfeat, names(GBFFfeat), FUN = function(elem, seqid){
+
+  #check first row is not empty
+  stopifnot(!grepl("^ {21}" , elem[[1]]))  
+  # identify rows 
+  rows <- cumsum(!grepl(elem, pattern ="^ {21}"))
+  elem_list <- split(elem, rows)
+
+
+  row_list <- lapply(elem_list, function(text){
+    #remove first line of each block and make one single line
+    block <- paste(substring(text[-1], 22, nchar(text[-1])), collapse = " ")    
+    #identify sequences /tagname="content"
+    matches = gregexec("/([a-zA-Z0-9_]+)(?:=(\"[^\"]+\"|[a-zA-Z0-9_]+))?", block)
+    
+    #separate values and tagnames and remove double quotes 
+    values <- gsub("\"([^\"]*)\"","\\1", regmatches(block, matches)[[1]][3,])
+    cols <- regmatches(block, matches)[[1]][2,] 
+    
+    # paste all in a one_line data.frame
+    as.data.frame(as.list(
+      c(seqid = seqid,
+        type = trimws(substr(text[1], 1,21)), 
+        region = trimws(substr(text[1], 22,nchar(text[1]))),
+        setNames(values, cols)))) 
+  })
+  # dplyr::bind_rows for binding all dataframes by col name 
+  df <- dplyr::bind_rows(row_list)
+  # if you want to extend "plasmid" you can use tidyr::fill
+  # TODO: tidyr::fill(df, plasmid, .direction = "down")
+})
+
+# dplyr::bind_rows for building a one single data.frame
+GBFF_df <- dplyr::bind_rows(GBFF_df)
+
+head(GBFF_df)
 ```
 

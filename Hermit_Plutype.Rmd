@@ -1,0 +1,50 @@
+---
+title: "Hermit_Plutype"
+output: html_document
+date: "2024-02-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+assoc.hermit <- read_tsv("hermit.binary.plutype.assoc.txt")
+```
+```{r}
+assoc.hermit %>% arrange(p_wald)
+assoc.hermit$p_wald = -log10(assoc$p_wald)
+
+```
+
+```{r}
+attach(assoc)
+assoc.over6 <- assoc[which(p_wald>6),]
+detach(assoc)
+```
+
+```{r}
+assoc.over6 %>% arrange(p_wald)
+assoc.over9 <- assoc.over6 %>% filter(p_wald > 9)
+assoc.over8 <- assoc.over6 %>% filter(p_wald > 8)
+
+```
+
+
+```{r}
+hermit.Fst100 <- read_tsv("hermit.mlf.vs.flf.sliding100.windowed.weir.fst")
+
+
+hermit.Fst100.high <- hermit.Fst100 %>% filter(WEIGHTED_FST > .8)
+
+hermit.Fst100.high %>% arrange(desc(WEIGHTED_FST))
+
+hermit.Fst100.one <- hermit.Fst100.high %>% filter(WEIGHTED_FST == 1) %>% arrange(BIN_START)
+
+```
+

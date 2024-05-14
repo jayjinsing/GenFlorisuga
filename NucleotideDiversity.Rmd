@@ -1,0 +1,559 @@
+---
+title: "NucleotideDiversity"
+output: html_document
+date: "2024-02-04"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+
+mlf.indels.500 <- read_tsv("mlf.BNC2buffered.withindels.500window.windowed.pi")
+mlf.indels.1k <- read_tsv("mlf.BNC2buffered.withindels.1kwindow.windowed.pi")
+mlf.indels.10k <- read_tsv("mlf.BNC2buffered.withindels.10kwindow.windowed.pi")
+
+flf.indels.500 <- read_tsv("flf.BNC2buffered.withindels.500window.windowed.pi")
+flf.indels.1k <- read_tsv("flf.BNC2buffered.withindels.1kwindow.windowed.pi")
+flf.indels.10k <- read_tsv("flf.BNC2buffered.withindels.10kwindow.windowed.pi")
+
+mlf.noindels.20 <- read_tsv("mlf.BNC2buffered.NOindels.20window.windowed.pi")
+mlf.noindels.100 <- read_tsv("mlf.BNC2buffered.NOindels.100window.windowed.pi")
+mlf.noindels.200 <- read_tsv("mlf.BNC2buffered.NOindels.200window.windowed.pi")
+mlf.noindels.500 <- read_tsv("mlf.BNC2buffered.NOindels.500window.windowed.pi")
+mlf.noindels.1k <- read_tsv("mlf.BNC2buffered.NOindels.1kwindow.windowed.pi")
+mlf.noindels.10k <- read_tsv("mlf.BNC2buffered.NOindels.10kwindow.windowed.pi")
+
+flf.noindels.20 <- read_tsv("flf.BNC2buffered.NOindels.20window.windowed.pi")
+flf.noindels.100 <- read_tsv("flf.BNC2buffered.NOindels.100window.windowed.pi")
+flf.noindels.200 <- read_tsv("flf.BNC2buffered.NOindels.200window.windowed.pi")
+flf.noindels.500 <- read_tsv("flf.BNC2buffered.NOindels.500window.windowed.pi")
+flf.noindels.1k <- read_tsv("flf.BNC2buffered.NOindels.1kwindow.windowed.pi")
+flf.noindels.10k <- read_tsv("flf.BNC2buffered.NOindels.10kwindow.windowed.pi")
+
+fems.noindels.500 <- read_tsv("females.BNC2buffered.NOindels.500window.windowed.pi")
+fems.noindels.1k <- read_tsv("females.BNC2buffered.NOindels.1kwindow.windowed.pi")
+fems.noindels.10k <- read_tsv("females.BNC2buffered.NOindels.10kwindow.windowed.pi")
+
+all.indels.500 <- read_tsv("all.BNC2buffered.withindels.500window.windowed.pi")
+all.indels.1k <- read_tsv("all.BNC2buffered.withindels.1kwindow.windowed.pi")
+all.indels.10k <- read_tsv("all.BNC2buffered.withindels.10kwindow.windowed.pi")
+
+all.noindels.20 <- read_tsv("all.BNC2buffered.NOindels.20window.windowed.pi")
+all.noindels.100 <- read_tsv("all.BNC2buffered.NOindels.100window.windowed.pi")
+all.noindels.200 <- read_tsv("all.BNC2buffered.NOindels.200window.windowed.pi")
+all.noindels.500 <- read_tsv("all.BNC2buffered.NOindels.500window.windowed.pi")
+all.noindels.1k <- read_tsv("all.BNC2buffered.NOindels.1kwindow.windowed.pi")
+all.noindels.10k <- read_tsv("all.BNC2buffered.NOindels.10kwindow.windowed.pi")
+
+tajD.indels.100 <- read_tsv("BNC2.tajimasd.allinds.100.Tajima.D")
+tajD.indels.200 <- read_tsv("BNC2.tajimasd.allinds.200.Tajima.D")
+tajD.indels.1k <- read_tsv("BNC2.tajimasd.allinds.1k.Tajima.D")
+tajD.indels.10k <- read_tsv("BNC2.tajimasd.allinds.10k.Tajima.D")
+
+tajD.noindels.100 <- read_tsv("all.BNC2buffered.tajimasd.allinds.noindels.100.Tajima.D")
+tajD.noindels.500 <- read_tsv("all.BNC2buffered.tajimasd.allinds.noindels.500.Tajima.D")
+tajD.noindels.1k <- read_tsv("all.BNC2buffered.tajimasd.allinds.noindels.1k.Tajima.D")
+tajD.noindels.10k <- read_tsv("all.BNC2buffered.tajimasd.allinds.noindels.10k.Tajima.D")
+
+
+
+```
+
+# With Indels
+All three window sizes of MLF with full gene and buffer
+```{r}
+ggplot(data = mlf.indels.500, aes(x = BIN_START, y = PI)) +
+  geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003, col = "red"), size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003, col = "black"), size = 5)
+
+ggplot(data = mlf.indels.1k, aes(x = BIN_START, y = PI)) +
+  geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003, col = "red"), size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003, col = "black"), size = 5)
+
+ggplot(data = mlf.indels.10k, aes(x = BIN_START, y = PI)) +
+  geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003, col = "red"), size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003, col = "black"), size = 5)
+
+```
+
+All three window sizes of FLF with full gene and buffer
+```{r}
+ggplot(data = flf.indels.500, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003, col = "red"), size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003, col = "black"), size = 5)
+
+ggplot(data = flf.indels.1k, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003, col = "red"), size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003, col = "black"), size = 5)
+
+ggplot(data = flf.indels.10k, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003, col = "red"), size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003, col = "black"), size = 5)
+```
+
+All three window sizes of all birds with full gene and buffer
+```{r}
+ggplot(data = all.indels.500, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003, col = "red"), size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003, col = "black"), size = 5)
+
+ggplot(data = all.indels.1k, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003, col = "red"), size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003, col = "black"), size = 5)
+
+ggplot(data = all.indels.10k, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003, col = "red"), size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003, col = "black"), size = 5)
+```
+
+Full buffered region and gene, but with indels included
+```{r}
+ggplot(data = mlf.indels.10k, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  #geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+ggplot(data = flf.indels.10k, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  #geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+```
+
+
+# No indels
+
+All window sizes for FLF, full gene and buffer, with exons
+```{r}
+ggplot(data = flf.noindels.500, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+ggplot(data = flf.indels.1k, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+ggplot(data = flf.indels.10k, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  geom_smooth() +
+  xlim(41584094, 42403202) +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+```
+
+All window sizes for MLF, full gene and buffer, with exons
+```{r}
+ggplot(data = mlf.noindels.500, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+ggplot(data = mlf.noindels.1k, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+ggplot(data = mlf.noindels.10k, aes(x = BIN_START, y = PI)) +
+  geom_line() +
+  #geom_point() +
+  xlim(41584094, 42403202) +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+```
+
+# Comparisons 
+
+10k window with full buffer
+```{r}
+ggplot() +
+  geom_line(data = all.noindels.10k, aes(x = BIN_START, y = PI)) +
+  geom_line(data = mlf.noindels.10k, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_line(data = flf.noindels.10k, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  xlim(41584094, 42403202) +
+  #geom_point() +
+  geom_smooth(data = all.noindels.10k, aes(x = BIN_START, y = PI), col = "black") +
+  geom_smooth(data = mlf.noindels.10k, aes(x = BIN_START, y = PI), col = "blue") +
+  geom_smooth(data = flf.noindels.10k, aes(x = BIN_START, y = PI), col = "red") +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+```
+
+10k window, zoom into gene
+```{r}
+ggplot() +
+  xlim(41864094, 42133202) +
+  geom_line(data = all.noindels.10k, aes(x = BIN_START, y = PI)) +
+  geom_smooth(data = all.noindels.10k, aes(x = BIN_START, y = PI), col = "black") +
+  geom_line(data = mlf.noindels.10k, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_smooth(data = mlf.noindels.10k, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_line(data = flf.noindels.10k, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  geom_smooth(data = flf.noindels.10k, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  #geom_point() +
+  #geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5) +
+  theme_classic()
+```
+
+10k window, zoom into Fst = 1 region
+```{r}
+ggplot() +
+  xlim(41969101, 42020666) +
+  geom_line(data = all.noindels.10k, aes(x = BIN_START, y = PI)) +
+  geom_smooth(data = all.noindels.10k, aes(x = BIN_START, y = PI), col = "black") +
+  geom_line(data = mlf.noindels.10k, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_smooth(data = mlf.noindels.10k, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_line(data = flf.noindels.10k, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  geom_smooth(data = flf.noindels.10k, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  #geom_point() +
+  #geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5) +
+  theme_classic()
+```
+
+500 window, zoom into Fst = 1 region
+```{r}
+ggplot() +
+  xlim(41972101, 42006666) +
+  ylim(0, 0.011) +
+  geom_line(data = all.noindels.500, aes(x = BIN_START, y = PI)) +
+  geom_smooth(data = all.noindels.500, aes(x = BIN_START, y = PI), col = "black") +
+  geom_line(data = mlf.noindels.500, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_smooth(data = mlf.noindels.500, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_line(data = flf.noindels.500, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  geom_smooth(data = flf.noindels.500, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  #geom_point() +
+  #geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41988462, xend = 41988463, y = .01, yend = .01), col = "black", size = 5) +
+  geom_segment(aes(x = 41988463, xend = 41989101, y = .01, yend = .01), col = "black", size = 3) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .01, yend = .01), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .01, yend = .01), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .01, yend = .01), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .01, yend = .01), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .01, yend = .01), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .01, yend = .01), col = "green", size = 5) +
+  theme_classic()
+```
+
+Zoom way into region of high Fst
+```{r}
+ggplot() +
+  xlim(41987762, 41990366) +
+  ylim(0, 0.011) +
+  geom_line(data = all.noindels.500, aes(x = BIN_START, y = PI)) +
+  geom_smooth(data = all.noindels.500, aes(x = BIN_START, y = PI), col = "black") +
+  geom_line(data = mlf.noindels.500, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_smooth(data = mlf.noindels.500, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_line(data = flf.noindels.500, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  geom_smooth(data = flf.noindels.500, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  #geom_point() +
+  #geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41988462, xend = 41988463, y = .01, yend = .01), col = "black", size = 5) +
+  geom_segment(aes(x = 41988463, xend = 41989101, y = .01, yend = .01), col = "black", size = 3) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .01, yend = .01), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .01, yend = .01), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .01, yend = .01), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .01, yend = .01), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .01, yend = .01), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .01, yend = .01), col = "green", size = 5) +
+  theme_classic()
+```
+
+Zoom way into region of high Fst, with very small windows
+```{r}
+ggplot() +
+  xlim(41984462, 41994066) +
+  ylim(0, 0.017) +
+  geom_line(data = all.noindels.200, aes(x = BIN_START, y = PI)) +
+  geom_smooth(data = all.noindels.200, aes(x = BIN_START, y = PI), col = "black") +
+  geom_line(data = mlf.noindels.200, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_smooth(data = mlf.noindels.200, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_line(data = flf.noindels.200, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  geom_smooth(data = flf.noindels.200, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  #geom_point() +
+  #geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .01, yend = .01), col = "pink", size = 5) +
+  geom_segment(aes(x = 41988462, xend = 41988463, y = .01, yend = .01), col = "black", size = 5) +
+  geom_segment(aes(x = 41988463, xend = 41989101, y = .01, yend = .01), col = "black", size = 3) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .01, yend = .01), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .01, yend = .01), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .01, yend = .01), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .01, yend = .01), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .01, yend = .01), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .01, yend = .01), col = "green", size = 5) +
+  theme_classic()
+```
+
+500 window, full gene but no buffer
+```{r}
+ggplot() +
+  xlim(41864094, 42133202) +
+  geom_line(data = all.noindels.500, aes(x = BIN_START, y = PI)) +
+  geom_smooth(data = all.noindels.500, aes(x = BIN_START, y = PI), col = "black") +
+  geom_line(data = mlf.noindels.500, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_smooth(data = mlf.noindels.500, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_line(data = flf.noindels.500, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  geom_smooth(data = flf.noindels.500, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  #geom_point() +
+  #geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5) +
+  theme_classic()
+```
+
+500 window with full buffer
+```{r}
+ggplot() +
+  geom_line(data = all.noindels.500, aes(x = BIN_START, y = PI)) +
+  geom_line(data = mlf.noindels.500, aes(x = BIN_START, y = PI), col = "blue", alpha = 0.3) +
+  geom_line(data = flf.noindels.500, aes(x = BIN_START, y = PI), col = "red", alpha = 0.3) +
+  xlim(41584094, 42403202) +
+  #geom_point() +
+  geom_smooth(data = all.noindels.500, aes(x = BIN_START, y = PI), col = "black") +
+  geom_smooth(data = mlf.noindels.500, aes(x = BIN_START, y = PI), col = "blue") +
+  geom_smooth(data = flf.noindels.500, aes(x = BIN_START, y = PI), col = "red") +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+```
+# Tajima's D with indels
+```{r}
+ggplot(data = tajD.indels.100, aes(x = BIN_START, y = TajimaD)) +
+  geom_line() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+ggplot(data = tajD.indels.200, aes(x = BIN_START, y = TajimaD)) +
+  geom_line() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+
+ggplot(data = tajD.indels.1k, aes(x = BIN_START, y = TajimaD)) +
+  geom_line() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+ggplot(data = tajD.indels.10k, aes(x = BIN_START, y = TajimaD)) +
+  geom_line() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+```
+
+Zoom into gene
+```{r}
+ggplot(data = tajD.indels.10k, aes(x = BIN_START, y = TajimaD)) +
+  geom_line() +
+  geom_smooth() +
+  xlim(41750094, 42231202) +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+```
+
+# Tajima's D with indels removed 
+
+```{r}
+ggplot(data = tajD.noindels.100, aes(x = BIN_START, y = TajimaD)) +
+  geom_line() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+ggplot(data = tajD.noindels.500, aes(x = BIN_START, y = TajimaD)) +
+  geom_line() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+
+ggplot(data = tajD.noindels.1k, aes(x = BIN_START, y = TajimaD)) +
+  geom_line() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+
+ggplot(data = tajD.noindels.10k, aes(x = BIN_START, y = TajimaD)) +
+  geom_line() +
+  geom_smooth() +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+```
+Zoom into gene
+```{r}
+ggplot(data = tajD.noindels.100, aes(x = BIN_START, y = TajimaD)) +
+  geom_line() +
+  geom_smooth() +
+  #xlim(41750094, 42231202) +
+  #xlim(41749462, 42200066) +
+  geom_segment(aes(x = 41884094, xend = 42113202, y = .003, yend = .003), col = "pink", size = 5) +
+  geom_segment(aes(x = 41989101, xend = 41989666, y = .003, yend = .003), col = "black", size = 5) +
+  geom_segment(aes(x = 41884094, xend = 41884204, y = .003, yend = .003), col = "green", size = 5) + 
+  geom_segment(aes(x = 41998251, xend = 41998353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42014173, xend = 42014408, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42088387, xend = 42090353, y = .003, yend = .003), col = "green", size = 5) +
+  geom_segment(aes(x = 42112542, xend = 42113202, y = .003, yend = .003), col = "green", size = 5)
+```
